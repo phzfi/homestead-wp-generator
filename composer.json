@@ -1,0 +1,12 @@
+{
+    "name": "phz/homestead-wp-generator",
+    "description": "Homestead Wordpress Generator, that lets you generate projects, add them to Homestead.yaml. Also lets you to remove projects from Homestead.yaml [TODO]",
+    "type": "tool",
+    "authors": [
+        {
+            "name": "Kristian Lauttamus",
+            "email": "kristian.lauttamus@phz.fi"
+        }
+    ],
+    "require": {}
+}
