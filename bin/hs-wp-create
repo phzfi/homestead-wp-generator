@@ -11,6 +11,8 @@ wordpress-seo.5.1.zip
 w3-total-cache.0.9.5.4.zip
 "
 
+
+# Script itself
 function lowercase {
     lowercased=`echo $1 | tr '[A-Z]' '[a-z]'`
 }
@@ -28,7 +30,7 @@ if [ -z "$1" ]
         answer="$1"
 fi
 
-siteName="$answer"
+devDomain="$answer"
 
 if [ -z "$2" ]
     then
@@ -101,11 +103,11 @@ echo "Creating folder $siteFolder ..."
 git clone $answer $siteFolderFromHomeDir
 
 echo "Connecting to Homestead ..."
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@127.0.0.1 -p 2222 "sudo bash /vagrant/scripts/serve.sh $siteName $vSiteFolder"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@127.0.0.1 -p 2222 "sudo bash /vagrant/scripts/serve.sh $devDomain $vSiteFolder"
 
 echo "Editing hosts file (You might be asked to provide your user's password for host machine)..."
 # edit hosts file
-echo -e "\n$vagrantIp $siteName" | sudo tee -a /etc/hosts
+echo -e "\n$vagrantIp $devDomain" | sudo tee -a /etc/hosts
 
 echo "Editing Homestead.yaml file ..."
 # edit Homestead.yaml
@@ -135,7 +137,7 @@ cp $sFolder/.env.example $sFolder/.env
 sed -i '' -e s/^DB_NAME=.*/DB_NAME=$siteFolderWithoutHomeDir/ $sFolder/.env
 sed -i '' -e s/^DB_USER=.*/DB_USER=homestead/ $sFolder/.env
 sed -i '' -e s/^DB_PASSWORD=.*/DB_PASSWORD=secret/ $sFolder/.env
-sed -i '' -e 's,^WP_HOME=.*,WP_HOME=http://'"$siteName"',g' $sFolder/.env
+sed -i '' -e 's,^WP_HOME=.*,WP_HOME=http://'"$devDomain"',g' $sFolder/.env
 sed -i '' -e s/^AUTH_KEY=.*/AUTH_KEY=`random-string`/ $sFolder/.env
 sed -i '' -e s/^SECURE_AUTH_KEY=.*/SECURE_AUTH_KEY=`random-string`/ $sFolder/.env
 sed -i '' -e s/^LOGGED_IN_KEY=.*/LOGGED_IN_KEY=`random-string`/ $sFolder/.env
@@ -162,7 +164,7 @@ echo "Running Yarn install"
 (cd $sFolder && yarn install)
 
 awk -v from="folders:.*$" -v to="folders:\n    - map: $sFolder\n      to: /home/vagrant/$siteFolderWithoutHomeDir" '{gsub(from,to,$0); print $0}' $file > ${file}.tmp
-awk -v from="sites:.*$" -v to="sites:\n    - map: $siteName\n      to: $vSiteFolder/web" '{gsub(from,to,$0); print $0}' ${file}.tmp > ${file}2.tmp
+awk -v from="sites:.*$" -v to="sites:\n    - map: $devDomain\n      to: $vSiteFolder/web" '{gsub(from,to,$0); print $0}' ${file}.tmp > ${file}2.tmp
 awk -v from="databases:.*$" -v to="databases:\n    - $siteFolderWithoutHomeDir" '{gsub(from,to,$0); print $0}' ${file}2.tmp > ${file}3.tmp
 
 echo "Removing temp files ..."
@@ -185,7 +187,7 @@ echo " JavaScript's folder: /web/app/themes/default/js/"
 echo "All assets can be built by running yarn dev or yarn prod"
 echo "Use yarn hot, if you want your assets to be built automatically on changes"
 echo
-echo "You can now access your project from the browser: $siteName"
+echo "You can now access your project from the browser: $devDomain"
 echo
 echo "All done! Thank you!"
 echo
