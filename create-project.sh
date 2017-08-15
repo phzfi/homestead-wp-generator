@@ -1,0 +1,191 @@
+#!/bin/bash
+echo
+echo "Simple way to add nginx Wordpress Projects to Homestead"
+echo
+
+# Open-source Wordpress plugins
+# You can get this url from Wordpress's site
+wordpressPlugins="
+advanced-custom-fields.4.4.11.zip
+wordpress-seo.5.1.zip
+w3-total-cache.0.9.5.4.zip
+"
+
+function lowercase {
+    lowercased=`echo $1 | tr '[A-Z]' '[a-z]'`
+}
+
+function random-string()
+{
+    cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+}
+
+if [ -z "$1" ]
+    then
+        echo -n "Please enter site's name (for example project1.app): "
+        read answer
+    else
+        answer="$1"
+fi
+
+siteName="$answer"
+
+if [ -z "$2" ]
+    then
+        echo
+        echo "Path to site's public directory on host machine. "
+        echo "Path will be prefixed with your $HOME/workspace/Wordpress/"
+        echo -n "Folder to use: "
+        read answer
+    else
+        answer="$2"
+fi
+
+vSiteFolder="/home/vagrant/$answer"
+siteFolder="$HOME/workspace/Wordpress/$answer"
+siteFolderFromHomeDir="workspace/Wordpress/$answer"
+siteFolderWithoutHomeDir="$answer"
+
+if [ -z "$3" ]
+    then
+        echo
+        echo "Homestead's IP address "
+        echo -n "(leave blank for 192.168.10.10): "
+        read answer
+
+        if [ -z "$answer" ]
+            then
+                answer="192.168.10.10"
+        fi
+
+    else
+        answer="$3"
+fi
+
+vagrantIp="$answer"
+
+if [ -z "$4" ]
+    then
+        echo "Homestead's folder path "
+        echo -n "(leave blank for $HOME/Homestead): "
+        read answer
+
+        if [ -z "$answer" ]
+            then
+                answer="$HOME/Homestead"
+        fi
+
+    else
+        answer="$4"
+fi
+
+vagrantPath="$answer"
+
+# create folder if project doesn't exist
+if [ -z "$5" ]
+    then
+        echo "Insert the projects Git repo "
+        echo -n "(leave blank for default: https://github.com/phzfi/wordpress-boilerplate): "
+        read answer
+
+        if [ -z "$answer" ]
+            then
+                answer="https://github.com/phzfi/wordpress-boilerplate"
+        fi
+    else
+        answer="$5"
+fi
+
+echo
+echo "Creating folder $siteFolder ..."
+git clone $answer $siteFolderFromHomeDir
+
+echo "Connecting to Homestead ..."
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@127.0.0.1 -p 2222 "sudo bash /vagrant/scripts/serve.sh $siteName $vSiteFolder"
+
+echo "Editing hosts file (You might be asked to provide your user's password for host machine)..."
+# edit hosts file
+echo -e "\n$vagrantIp $siteName" | sudo tee -a /etc/hosts
+
+echo "Editing Homestead.yaml file ..."
+# edit Homestead.yaml
+if [ -e "$HOME/Homestead/Homestead.yaml" ]
+    then
+        file="$HOME/Homestead/Homestead.yaml"
+    else
+        file="$vagrantPath/Homestead.yaml"
+fi
+
+siteFolderLength=${#siteFolder}
+endLength=$[$siteFolderLength-7]
+sFolder="$siteFolder"
+
+if [ ${siteFolder:(-7)}  == "/web" ]
+    then
+        sFolder=${siteFolder:0:$endLength}
+        affix="/web"
+
+        vSiteFolderLength=${#vSiteFolder}
+        vEndLength=$[$vSiteFolderLength-7]
+        vSiteFolderShort=${vSiteFolder:0:$vEndLength}
+fi
+
+echo "Making a new development .env file"
+cp $sFolder/.env.example $sFolder/.env
+sed -i '' -e s/^DB_NAME=.*/DB_NAME=$siteFolderWithoutHomeDir/ $sFolder/.env
+sed -i '' -e s/^DB_USER=.*/DB_USER=homestead/ $sFolder/.env
+sed -i '' -e s/^DB_PASSWORD=.*/DB_PASSWORD=secret/ $sFolder/.env
+sed -i '' -e 's,^WP_HOME=.*,WP_HOME=http://'"$siteName"',g' $sFolder/.env
+sed -i '' -e s/^AUTH_KEY=.*/AUTH_KEY=`random-string`/ $sFolder/.env
+sed -i '' -e s/^SECURE_AUTH_KEY=.*/SECURE_AUTH_KEY=`random-string`/ $sFolder/.env
+sed -i '' -e s/^LOGGED_IN_KEY=.*/LOGGED_IN_KEY=`random-string`/ $sFolder/.env
+sed -i '' -e s/^NONCE_KEY=.*/NONCE_KEY=`random-string`/ $sFolder/.env
+sed -i '' -e s/^AUTH_SALT=.*/AUTH_SALT=`random-string`/ $sFolder/.env
+sed -i '' -e s/^SECURE_AUTH_SALT=.*/SECURE_AUTH_SALT=`random-string`/ $sFolder/.env
+sed -i '' -e s/^LOGGED_IN_SALT=.*/LOGGED_IN_SALT=`random-string`/ $sFolder/.env
+sed -i '' -e s/^NONCE_SALT=.*/NONCE_SALT=`random-string`/ $sFolder/.env
+
+echo "Installing default plugins..."
+(cd $sFolder/web/app/plugins/
+
+# Go through the plugins and get them to the correct folder
+for P in $wordpressPlugins; do
+	curl -sS https://downloads.wordpress.org/plugin/$P > $P
+	unzip -o $P
+	rm $P
+done)
+
+echo "Running Composer install"
+(cd $sFolder && composer install)
+
+echo "Running Yarn install"
+(cd $sFolder && yarn install)
+
+awk -v from="folders:.*$" -v to="folders:\n    - map: $sFolder\n      to: /home/vagrant/$siteFolderWithoutHomeDir" '{gsub(from,to,$0); print $0}' $file > ${file}.tmp
+awk -v from="sites:.*$" -v to="sites:\n    - map: $siteName\n      to: $vSiteFolder/web" '{gsub(from,to,$0); print $0}' ${file}.tmp > ${file}2.tmp
+awk -v from="databases:.*$" -v to="databases:\n    - $siteFolderWithoutHomeDir" '{gsub(from,to,$0); print $0}' ${file}2.tmp > ${file}3.tmp
+
+echo "Removing temp files ..."
+rm -f ${file}.tmp
+rm -f ${file}2.tmp
+mv ${file}3.tmp $file
+
+echo "Restarting your Homestead VM..."
+(cd Homestead && vagrant destroy --force && vagrant up)
+
+echo "Project info:"
+echo " Database name:       $siteFolderWithoutHomeDir"
+echo " Database username:   homestead"
+echo " Database password:   secret"
+echo "Project's folder structure:"
+echo " Root folder:         $vSiteFolder"
+echo " Theme folder:        /web/app/themes/default/"
+echo " Styling's folder:    /web/app/themes/default/scss/"
+echo " JavaScript's folder: /web/app/themes/default/js/"
+echo "All assets can be built by running yarn dev or yarn prod"
+echo "Use yarn hot, if you want your assets to be built automatically on changes"
+echo
+echo "You can now access your project from the browser: $siteName"
+echo
+echo "All done! Thank you!"
+echo
