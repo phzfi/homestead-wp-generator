@@ -11,6 +11,8 @@ wordpress-seo.5.1.zip
 w3-total-cache.0.9.5.4.zip
 "
 
+defaultWordpressRepo="https://github.com/phzfi/wordpress-boilerplate"
+
 
 # Script itself
 function lowercase {
@@ -87,12 +89,12 @@ vagrantPath="$answer"
 if [ -z "$5" ]
     then
         echo "Insert the projects Git repo "
-        echo -n "(leave blank for default: https://github.com/phzfi/wordpress-boilerplate): "
+        echo -n "(leave blank for default: $defaultWordpressRepo): "
         read answer
 
         if [ -z "$answer" ]
             then
-                answer="https://github.com/phzfi/wordpress-boilerplate"
+                answer=$defaultWordpressRepo
         fi
     else
         answer="$5"
