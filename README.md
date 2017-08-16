@@ -17,7 +17,7 @@ Continue to the next step by your OS.
 
 ### Linux
 ```
-echo "PATH=$PATH:~[folder the repo is in]/bin | sudo tee -a ~/.bashrc"
+echo "PATH=$PATH:~[folder the repo is in]/bin" >> ~/.bashrc"
 ```
 
 ### Mac
