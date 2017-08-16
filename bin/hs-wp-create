@@ -38,7 +38,7 @@ if [ -z "$2" ]
     then
         echo
         echo "Path to site's public directory on host machine. "
-        echo "Path will be prefixed with your $HOME/workspace/Wordpress/"
+        echo "Path will be prefixed with your $HOME/workspace/wordpress/"
         echo -n "Folder to use: "
         read answer
     else
@@ -46,8 +46,8 @@ if [ -z "$2" ]
 fi
 
 vSiteFolder="/home/vagrant/$answer"
-siteFolder="$HOME/workspace/Wordpress/$answer"
-siteFolderFromHomeDir="workspace/Wordpress/$answer"
+siteFolder="$HOME/workspace/wordpress/$answer"
+siteFolderFromHomeDir="workspace/wordpress/$answer"
 siteFolderWithoutHomeDir="$answer"
 
 if [ -z "$3" ]
