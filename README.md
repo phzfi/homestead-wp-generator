@@ -17,11 +17,12 @@ Continue to the next step by your OS.
 
 ### Linux
 ```
+echo "PATH=$PATH:~[folder the repo is in]/bin | sudo tee -a ~/.bashrc"
 ```
 
 ### Mac
 ```
-sudo [folder the repo is in]/bin/hs-wp-create >> /etc/paths
+echo "[folder the repo is in]/bin" | sudo tee -a /etc/paths
 ```
 
 ## Optional
