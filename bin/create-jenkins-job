@@ -66,7 +66,7 @@ fi
 echo -n "Job does not exist yet.  Creating..."
 
 # upload job
-curl -s -k -X POST "https://$jenkins_server/createItem?name=$job_name" \
+curl -s -k -X POST "$jenkins_server/createItem?name=$job_name" \
   --data-binary @$config_file \
   -H "Content-Type:text/xml" \
   -u $username:$password 2>&1>/dev/null
