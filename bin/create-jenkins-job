@@ -56,7 +56,7 @@ if [[ $resp == *"already exists"* ]]; then
 fi
 
 echo "Getting the authentication crumb"
-crumb=wget -q --auth-no-challenge --user $username --password $password --output-document - \ $jenkins_server'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+crumb=wget --auth-no-challenge --user $username --password $password $jenkins_server'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
 
 echo -n "Job does not exist yet.  Creating..."
 
