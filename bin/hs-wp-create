@@ -201,7 +201,7 @@ case "$response" in
         fi
 
         scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        configDir="..$scriptDir"
+        configDir="$scriptDir/.."
 
         currentIp=ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'
 
@@ -232,7 +232,7 @@ case "$response" in
         fi
 
         scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        configDir="..$scriptDir"
+        configDir="..$scriptDir/.."
 
         sed -e '/<hudson.plugins.git.UserRemoteConfig>/,/<\/hudson.plugins.git.UserRemoteConfig>/ s|<url>[0-9a-z.]\{1,\}</url>|<url>'$gitRepo'</url>|g' $configDir'/jenkinsConfigFile.xml' >> $configDir'/jenkinsConfigFile.xml.temp'
 
