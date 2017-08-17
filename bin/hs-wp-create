@@ -104,7 +104,7 @@ gitRepo=$answer
 
 echo
 echo "Creating folder $siteFolder ..."
-git clone $gitRepo $siteFolderFromHomeDir
+git clone $gitRepo $siteFolder
 
 echo "Connecting to Homestead ..."
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@127.0.0.1 -p 2222 "sudo bash /vagrant/scripts/serve.sh $devDomain $vSiteFolder"
@@ -232,7 +232,7 @@ case "$response" in
         fi
 
         scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        configDir="..$scriptDir/.."
+        configDir="$scriptDir/.."
 
         sed -e '/<hudson.plugins.git.UserRemoteConfig>/,/<\/hudson.plugins.git.UserRemoteConfig>/ s|<url>[0-9a-z.]\{1,\}</url>|<url>'$gitRepo'</url>|g' $configDir'/jenkinsConfigFile.xml' >> $configDir'/jenkinsConfigFile.xml.temp'
 
