@@ -177,7 +177,7 @@ rm -f ${file}2.tmp
 mv ${file}3.tmp $file
 
 echo "Restarting your Homestead VM..."
-(cd Homestead && vagrant destroy --force && vagrant up)
+(cd $vagrantPath && vagrant destroy --force && vagrant up)
 
 read -r -p "Want to create a local Jenkins Job? [y/N] " response
 case "$response" in
