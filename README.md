@@ -28,6 +28,12 @@ echo "[folder the repo is in]/bin" | sudo tee -a /etc/paths
 ## Optional
 All the default plugins and the repo can be found on the top of the script itself. You can change these if needed.
 
-## Honorable mention
+## Honorable mentions
 This script was inspired and started from this thread's starting post:  
-https://laracasts.com/discuss/channels/tips/automatically-create-new-project-in-homestead-20
+https://laracasts.com/discuss/channels/tips/automatically-create-new-project-in-homestead-20  
+  
+Jenkins Job creation adjusted from this repo  
+https://github.com/adampats/bash
+
+## License
+Can be found in the LICENSE file.
