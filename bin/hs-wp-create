@@ -177,6 +177,54 @@ mv ${file}3.tmp $file
 echo "Restarting your Homestead VM..."
 (cd Homestead && vagrant destroy --force && vagrant up)
 
+read -r -p "Want to create a local Jenkins Job? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY])
+        echo "Insert the local Jenkins Server url "
+        echo -n "(leave blank for default: http://localhost:8080): "
+        read jenkinsServerUrl
+
+        if [ -z "$jenkinsServerUrl" ]
+            then
+                jenkinsServerUrl="http://localhost:8080"
+        fi
+
+        echo "Insert the local Jenkins Server username "
+        echo -n "(leave blank for default: jenkins "
+        read jenkinsServerUsername
+
+        if [ -z "$jenkinsServerUsername" ]
+            then
+                jenkinsServerUsername="jenkins"
+        fi
+
+        (create-jenkins-job -s $jenkinsServerUrl -j $siteFolderWithoutHomeDir -u $jenkinsServerUsername)
+        ;;
+    *)
+        ;;
+esac
+
+read -r -p "Want to create a deployment Jenkins Job? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY])
+        echo -n "Insert the deployment Jenkins Server url: "
+        read jenkinsServerUrl
+
+        echo "Insert the deployment Jenkins Server username "
+        echo -n "(leave blank for default: jenkins "
+        read jenkinsServerUsername
+
+        if [ -z "$jenkinsServerUsername" ]
+            then
+                jenkinsServerUsername="jenkins"
+        fi
+
+        (create-jenkins-job -s $jenkinsServerUrl -j $siteFolderWithoutHomeDir -u $jenkinsServerUsername)
+        ;;
+    *)
+        ;;
+esac
+
 echo "Project info:"
 echo " Database name:       $siteFolderWithoutHomeDir"
 echo " Database username:   homestead"

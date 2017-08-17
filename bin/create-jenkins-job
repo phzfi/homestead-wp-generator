@@ -9,7 +9,7 @@
 ### Parameters
 
 ### Script
-usage_message=" Usage: bash put-job.sh -s [JENKINS_HOSTNAME] -j [JOB_NAME] -u [USERNAME] -c [CONFIG.XML] [-f]"
+usage_message=" Usage: create-jenkins-job -s [JENKINS_HOSTNAME] -j [JOB_NAME] -u [USERNAME] -c [CONFIG.XML] [-f]"
 
 if (($# == 0)); then
   echo "Missing opts."
@@ -51,7 +51,7 @@ if [ ! -f $config_file ]; then
   exit 1
 fi
 
-read -s -p "Please enter your password: " password
+read -s -p "Please enter your Jenkins password: " password
 echo ""
 echo "Checking if job already exists..."
 
