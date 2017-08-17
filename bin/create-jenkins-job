@@ -9,7 +9,7 @@
 ### Parameters
 
 ### Script
-usage_message=" Usage: create-jenkins-job -s [JENKINS_HOSTNAME] -j [JOB_NAME] -u [USERNAME] -c [CONFIG.XML] [-f]"
+usage_message=" Usage: create-jenkins-job -s [JENKINS_HOSTNAME] -j [JOB_NAME] -u [USERNAME] -c [CONFIG.XML]"
 
 if (($# == 0)); then
   echo "Missing opts."
@@ -31,9 +31,6 @@ while getopts ":s:j:u:c:" opt; do
     c)
       config_file="$OPTARG"
       ;;
-    f)
-      force=true
-      ;;
     \?)
       echo "Bad argument."
       echo "$usage_message"
@@ -45,11 +42,6 @@ while getopts ":s:j:u:c:" opt; do
       ;;
   esac
 done
-
-if [ ! -f $config_file ]; then
-  echo "Can't find $config_file.  Please fix."
-  exit 1
-fi
 
 read -s -p "Please enter your Jenkins password: " password
 echo ""
