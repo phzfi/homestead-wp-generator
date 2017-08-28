@@ -160,7 +160,7 @@ fi
 homesteadFolder="$answer"
 
 # create folder if project doesn't exist
-if [ "$nogitclone" -ne "0" ]
+if [ $nogitclone != 0 ]
     then
         mkdir $siteFolder
     else
